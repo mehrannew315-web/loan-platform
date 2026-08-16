@@ -18,10 +18,15 @@
                     <p class="text-[10px] text-blue-200">مرجع امن خرید و فروش امتیاز وام</p>
                 </div>
             </div>
-            <div id="auth-section">
-                <button onclick="openRegisterModal()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl text-xs font-semibold transition shadow-sm">
-                    ورود / ثبت‌نام فروشنده
+            <div class="flex items-center gap-2">
+                <button onclick="openAdminModal()" class="bg-amber-600 hover:bg-amber-700 px-3 py-2 rounded-xl text-xs font-semibold transition shadow-sm flex items-center gap-1">
+                    <span>⚙️</span> پنل ادمین
                 </button>
+                <div id="auth-section">
+                    <button onclick="openRegisterModal()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl text-xs font-semibold transition shadow-sm">
+                        ورود / ثبت‌نام فروشنده
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -50,6 +55,51 @@
                     <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl text-xs font-bold transition shadow-md">تایید و ذخیره مشخصات</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- مودال پنل ادمین -->
+    <div id="adminModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 max-w-5xl w-full shadow-2xl border border-slate-100 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">⚙️</span>
+                    <h3 class="text-base font-bold text-slate-900">پنل مدیریت جامع سایت (مخصوص ادمین)</h3>
+                </div>
+                <button onclick="closeAdminModal()" class="text-slate-400 hover:text-slate-600 text-sm font-bold">✕</button>
+            </div>
+            
+            <!-- محتوای پنل ادمین -->
+            <div class="flex-1 overflow-y-auto space-y-4">
+                <div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-700">کل آگهی‌های ثبت شده در سیستم: <span id="admin-total-ads" class="text-blue-600 font-black">0</span></h4>
+                        <p class="text-[11px] text-slate-500 mt-0.5">در این بخش به اطلاعات تماس کامل تمام مشتریان دسترسی دارید.</p>
+                    </div>
+                    <button onclick="clearAllAds()" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-2 rounded-xl text-xs font-bold transition">حذف همه آگهی‌ها</button>
+                </div>
+
+                <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                            <tr>
+                                <th class="p-3">بانک / نوع وام</th>
+                                <th class="p-3">نام فروشنده</th>
+                                <th class="p-3">شماره تماس</th>
+                                <th class="p-3">شهر</th>
+                                <th class="p-3">مبلغ وام (تومان)</th>
+                                <th class="p-3">قیمت واگذاری</th>
+                                <th class="p-3 text-center">عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-ads-table" class="divide-y divide-slate-100">
+                            <tr>
+                                <td colspan="7" class="text-center p-6 text-slate-400">در حال بارگذاری اطلاعات...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -171,6 +221,70 @@
 
         function closeRegisterModal() {
             document.getElementById('registerModal').classList.add('hidden');
+        }
+
+        // توابع پنل ادمین
+        function openAdminModal() {
+            let password = prompt("لطفاً رمز عبور ادمین را وارد کنید:", "");
+            if (password === "admin123") { // رمز پیش‌فرض
+                document.getElementById('adminModal').classList.remove('hidden');
+                loadAdminAds();
+            } else if (password !== null) {
+                alert("رمز عبور اشتباه است!");
+            }
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.add('hidden');
+        }
+
+        function loadAdminAds() {
+            let loans = JSON.parse(localStorage.getItem('loansList')) || [];
+            document.getElementById('admin-total-ads').innerText = loans.length;
+            const tbody = document.getElementById('admin-ads-table');
+
+            if (loans.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center p-6 text-slate-400">هیچ آگهی ثبت نشده است.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = loans.map(loan => {
+                const sellerName = loan.seller ? loan.seller.name : 'نامشخص';
+                const sellerPhone = loan.seller ? loan.seller.phone : 'ثبت نشده';
+                const sellerCity = loan.seller ? loan.seller.city : (loan.city || 'ـ');
+
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-3 font-bold text-slate-800">${loan.bankName} <span class="block text-[10px] text-blue-600 font-normal">${loan.loanType}</span></td>
+                        <td class="p-3 text-slate-700">${sellerName}</td>
+                        <td class="p-3 font-mono text-slate-700" dir="ltr">${sellerPhone}</td>
+                        <td class="p-3 text-slate-600">${sellerCity}</td>
+                        <td class="p-3 font-bold text-slate-800">${formatNumber(loan.amount)} تومان</td>
+                        <td class="p-3 font-bold text-emerald-600">${formatNumber(loan.price)} تومان</td>
+                        <td class="p-3 text-center">
+                            <button onclick="deleteLoan(${loan.id})" class="bg-red-50 hover:bg-red-600 hover:text-white text-red-600 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition">حذف</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function deleteLoan(id) {
+            if (confirm("آیا از حذف این آگهی اطمینان دارید؟")) {
+                let loans = JSON.parse(localStorage.getItem('loansList')) || [];
+                loans = loans.filter(loan => loan.id !== id);
+                localStorage.setItem('loansList', JSON.stringify(loans));
+                loadAdminAds();
+                fetchLoans();
+            }
+        }
+
+        function clearAllAds() {
+            if (confirm("هشدار: آیا می‌خواهید تمام آگهی‌های سایت را پاک کنید؟ این عملیات غیرقابل بازگشت است.")) {
+                localStorage.removeItem('loansList');
+                loadAdminAds();
+                fetchLoans();
+            }
         }
 
         function saveUser(event) {
