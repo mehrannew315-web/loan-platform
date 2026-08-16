@@ -44,7 +44,11 @@
         </div>
     </main>
     <script>
-        // بررسی وضعیت ورود کاربر هنگام باز شدن سایت
+        // تابع کمکی برای جدا کردن هزارگان (مثلاً: 100,000,000)
+        function formatNumber(num) {
+            return new Intl.NumberFormat('fa-IR').format(num);
+        }
+
         window.onload = function() {
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
@@ -66,19 +70,19 @@
             let loans = JSON.parse(localStorage.getItem('loansList')) || [];
             
             if (loans.length === 0) {
-                container.innerHTML = `<p class="text-gray-500 text-sm">هیچ آگهی ثبت شده‌ای موجود نیست. اولین آگهی را شما ثبت کنید!</p>`;
+                container.innerHTML = `<p class="text-gray-500 text-sm">هیچ آگهی ثبت شده‌ای موجود نیست.</p>`;
                 return;
             }
 
             container.innerHTML = loans.map(loan => `
                 <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition">
                     <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">${loan.bankName}</span>
-                    <h3 class="text-base font-bold text-gray-800 mt-2">مبلغ وام: ${Number(loan.amount).toLocaleString()} تومان</h3>
+                    <h3 class="text-base font-bold text-gray-800 mt-2">مبلغ وام: ${formatNumber(loan.amount)} تومان</h3>
                     <p class="text-xs text-gray-500 mt-1">فروشنده: ${loan.phone}</p>
                     <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center">
                         <div>
                             <span class="text-xs text-gray-400 block">قیمت واگذاری</span>
-                            <span class="text-sm font-bold text-green-600">${Number(loan.price).toLocaleString()} تومان</span>
+                            <span class="text-sm font-bold text-green-600">${formatNumber(loan.price)} تومان</span>
                         </div>
                         <button onclick="alert('شماره تماس فروشنده: ${loan.phone}')" class="bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-medium px-3 py-1.5 rounded-lg transition">
                             اطلاعات تماس
