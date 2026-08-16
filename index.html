@@ -90,11 +90,11 @@
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1">مبلغ کل وام (تومان)</label>
-                    <input type="number" id="amount" required placeholder="100000000" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <input type="text" id="amount" required placeholder="100,000,000" oninput="formatMoneyInput(this)" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1">قیمت پیشنهادی واگذاری (تومان)</label>
-                    <input type="number" id="price" required placeholder="15000000" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <input type="text" id="price" required placeholder="15,000,000" oninput="formatMoneyInput(this)" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1">توضیحات و شرایط ضامن</label>
@@ -135,7 +135,17 @@
     <!-- کدهای جاوااسکریپت -->
     <script>
         function formatNumber(num) {
-            return new Intl.NumberFormat('fa-IR').format(num);
+            return new Intl.NumberFormat('en-US').format(num);
+        }
+
+        // تابع جداکننده ارقام به هنگام تایپ در اینپوت
+        function formatMoneyInput(input) {
+            let value = input.value.replace(/,/g, '').replace(/\D/g, '');
+            if (value) {
+                input.value = Number(value).toLocaleString('en-US');
+            } else {
+                input.value = '';
+            }
         }
 
         window.onload = function() {
@@ -239,14 +249,18 @@
                 return;
             }
 
+            // پاک کردن کاماها از مقادیر قبل از ذخیره‌سازی
+            const rawAmount = document.getElementById('amount').value.replace(/,/g, '');
+            const rawPrice = document.getElementById('price').value.replace(/,/g, '');
+
             const newLoan = {
                 id: Date.now(),
                 bankName: document.getElementById('bankName').value,
                 city: document.getElementById('city').value,
                 loanType: document.getElementById('loanType').value,
                 installments: document.getElementById('installments').value,
-                amount: document.getElementById('amount').value,
-                price: document.getElementById('price').value,
+                amount: rawAmount,
+                price: rawPrice,
                 description: document.getElementById('description').value,
                 seller: user
             };
