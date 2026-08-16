@@ -11,27 +11,74 @@
         <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
             <h1 class="text-xl font-bold">آسان وام</h1>
             <div id="auth-section">
-                <button onclick="loginUser()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm transition">ورود / ثبت‌نام</button>
+                <button onclick="openRegisterModal()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm transition">ثبت‌نام / ورود</button>
             </div>
         </div>
     </header>
+
+    <!-- Modal ثبت‌نام -->
+    <div id="registerModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full shadow-lg">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">ثبت‌نام یا ورود به آسان وام</h3>
+            <form onsubmit="saveUser(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">نام و نام خانوادگی</label>
+                    <input type="text" id="regName" required placeholder="مثلاً علی رضایی" class="w-full border rounded-lg p-2.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">شماره موبایل</label>
+                    <input type="tel" id="regPhone" required placeholder="09123456789" class="w-full border rounded-lg p-2.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">شهر سکونت</label>
+                    <input type="text" id="regCity" required placeholder="مثلاً تهران" class="w-full border rounded-lg p-2.5 text-sm">
+                </div>
+                <div class="flex space-x-2 space-x-reverse pt-2">
+                    <button type="submit" class="flex-1 bg-blue-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700">تایید و ورود</button>
+                    <button type="button" onclick="closeRegisterModal()" class="bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-300">انصراف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <main class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 h-fit">
             <h2 class="text-lg font-bold text-gray-800 mb-4">ثبت آگهی وام</h2>
-            <form id="loan-form" onsubmit="submitLoan(event)" class="space-y-4">
-                <input type="text" id="bankName" required placeholder="نام بانک" class="w-full border rounded-lg p-2 text-sm">
-                <input type="text" id="city" required placeholder="شهر" class="w-full border rounded-lg p-2 text-sm">
-                <select id="loanType" class="w-full border rounded-lg p-2 text-sm text-gray-600">
-                    <option value="وام ازدواج">وام ازدواج</option>
-                    <option value="وام مسکن">وام مسکن</option>
-                    <option value="وام کالا">وام کالا</option>
-                    <option value="وام رسالت">وام رسالت</option>
-                </select>
-                <input type="number" id="installments" required placeholder="تعداد اقساط باقی‌مانده" class="w-full border rounded-lg p-2 text-sm">
-                <input type="number" id="amount" required placeholder="مبلغ وام (تومان)" class="w-full border rounded-lg p-2 text-sm">
-                <input type="number" id="price" required placeholder="قیمت واگذاری (تومان)" class="w-full border rounded-lg p-2 text-sm">
-                <textarea id="description" placeholder="توضیحات تکمیلی..." class="w-full border rounded-lg p-2 text-sm h-20"></textarea>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition">ثبت آگهی</button>
+            <form id="loan-form" onsubmit="submitLoan(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">نام بانک</label>
+                    <input type="text" id="bankName" required placeholder="مثلاً بانک رسالت" class="w-full border rounded-lg p-2.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">شهر وام</label>
+                    <input type="text" id="city" required placeholder="مثلاً اصفهان" class="w-full border rounded-lg p-2.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">نوع وام</label>
+                    <select id="loanType" class="w-full border rounded-lg p-2.5 text-sm text-gray-700 bg-white">
+                        <option value="وام ازدواج">وام ازدواج</option>
+                        <option value="وام مسکن">وام مسکن</option>
+                        <option value="وام کالا">وام کالا</option>
+                        <option value="وام رسالت">وام رسالت</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">تعداد اقساط باقی‌مانده</label>
+                    <input type="number" id="installments" required placeholder="مثلاً 36" class="w-full border rounded-lg p-2.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">مبلغ کل وام (تومان)</label>
+                    <input type="number" id="amount" required placeholder="مثلاً 100000000" class="w-full border rounded-lg p-2.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">قیمت پیشنهادی واگذاری (تومان)</label>
+                    <input type="number" id="price" required placeholder="مثلاً 15000000" class="w-full border rounded-lg p-2.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">توضیحات تکمیلی</label>
+                    <textarea id="description" placeholder="شرایط ضامن یا نکات دیگر..." class="w-full border rounded-lg p-2.5 text-sm h-20"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition text-sm">ثبت آگهی</button>
             </form>
         </div>
         <div class="md:col-span-2">
@@ -41,35 +88,80 @@
             </div>
         </div>
     </main>
+
     <script>
         function formatNumber(num) { return new Intl.NumberFormat('fa-IR').format(num); }
         
         window.onload = function() {
-            const savedUser = localStorage.getItem('currentUser');
-            if (savedUser) document.getElementById('auth-section').innerHTML = `<span class="text-green-300 text-sm font-medium">خوش آمدید (${savedUser})</span>`;
+            checkAuth();
             fetchLoans();
         };
 
-        function loginUser() {
-            const phone = prompt("شماره موبایل:");
-            if (!phone) return;
-            localStorage.setItem('currentUser', phone);
+        function checkAuth() {
+            const user = JSON.parse(localStorage.getItem('currentUserProfile'));
+            if (user) {
+                document.getElementById('auth-section').innerHTML = `
+                    <div class="flex items-center space-x-3 space-x-reverse text-sm">
+                        <span class="bg-blue-800 px-3 py-1.5 rounded-lg">👤 ${user.name} (${user.city})</span>
+                        <button onclick="logout()" class="text-red-200 hover:text-white text-xs underline">خروج</button>
+                    </div>
+                `;
+            }
+        }
+
+        function openRegisterModal() {
+            document.getElementById('registerModal').classList.remove('hidden');
+        }
+
+        function closeRegisterModal() {
+            document.getElementById('registerModal').classList.add('hidden');
+        }
+
+        function saveUser(event) {
+            event.preventDefault();
+            const user = {
+                name: document.getElementById('regName').value,
+                phone: document.getElementById('regPhone').value,
+                city: document.getElementById('regCity').value
+            };
+            localStorage.setItem('currentUserProfile', JSON.stringify(user));
+            closeRegisterModal();
+            checkAuth();
+            alert('ثبت‌نام با موفقیت انجام شد!');
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUserProfile');
             location.reload();
         }
 
         function fetchLoans() {
             const container = document.getElementById('loans-list');
             let loans = JSON.parse(localStorage.getItem('loansList')) || [];
-            if (loans.length === 0) { container.innerHTML = `<p class="text-gray-500 text-sm">هنوز آگهی ثبت نشده.</p>`; return; }
+            if (loans.length === 0) { 
+                container.innerHTML = `<p class="text-gray-500 text-sm col-span-2">هنوز آگهی ثبت نشده است.</p>`; 
+                return; 
+            }
             container.innerHTML = loans.map(loan => `
-                <div class="bg-white border p-4 rounded-xl shadow-sm">
-                    <span class="bg-blue-100 text-blue-800 text-[10px] px-2 py-0.5 rounded-full">${loan.loanType} - ${loan.city}</span>
-                    <h3 class="font-bold text-gray-800 mt-2">${loan.bankName}</h3>
-                    <p class="text-xs text-gray-500">مبلغ: ${formatNumber(loan.amount)} | اقساط: ${loan.installments}</p>
-                    <p class="text-xs text-gray-600 mt-1 italic">${loan.description || ''}</p>
-                    <div class="mt-4 pt-2 border-t flex justify-between items-center">
-                        <span class="text-sm font-bold text-green-600">${formatNumber(loan.price)} ت</span>
-                        <button onclick="alert('تماس با فروشنده: ${loan.phone}')" class="bg-gray-100 text-xs px-3 py-1 rounded-lg">تماس</button>
+                <div class="bg-white border border-gray-200 p-4 rounded-xl shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">${loan.loanType}</span>
+                            <span class="text-xs text-gray-500">📍 ${loan.city}</span>
+                        </div>
+                        <h3 class="font-bold text-gray-800 mt-2 text-base">${loan.bankName}</h3>
+                        <p class="text-xs text-gray-600 mt-1">مبلغ وام: <span class="font-semibold">${formatNumber(loan.amount)} تومان</span></p>
+                        <p class="text-xs text-gray-600">اقساط باقی‌مانده: <span class="font-semibold">${loan.installments} قسط</span></p>
+                        <p class="text-xs text-gray-500 mt-2 bg-gray-50 p-2 rounded-lg">${loan.description || 'بدون توضیحات'}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center">
+                        <div>
+                            <span class="text-[10px] text-gray-400 block">قیمت واگذاری</span>
+                            <span class="text-sm font-bold text-green-600">${formatNumber(loan.price)} تومان</span>
+                        </div>
+                        <button onclick="alert('فروشنده: ${loan.seller.name}\\nشماره تماس: ${loan.seller.phone}\\nشهر: ${loan.seller.city}')" class="bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-medium px-3 py-2 rounded-lg transition">
+                            اطلاعات تماس
+                        </button>
                     </div>
                 </div>
             `).join('');
@@ -77,8 +169,12 @@
 
         function submitLoan(event) {
             event.preventDefault();
-            const currentUser = localStorage.getItem('currentUser');
-            if (!currentUser) { alert('ابتدا وارد شوید!'); return; }
+            const user = JSON.parse(localStorage.getItem('currentUserProfile'));
+            if (!user) { 
+                alert('لطفاً ابتدا از طریق دکمه بالای صفحه ثبت‌نام کنید یا وارد شوید!'); 
+                openRegisterModal();
+                return; 
+            }
 
             const newLoan = {
                 id: Date.now(),
@@ -89,14 +185,15 @@
                 amount: document.getElementById('amount').value,
                 price: document.getElementById('price').value,
                 description: document.getElementById('description').value,
-                phone: currentUser
+                seller: user
             };
 
             let loans = JSON.parse(localStorage.getItem('loansList')) || [];
             loans.unshift(newLoan);
             localStorage.setItem('loansList', JSON.stringify(loans));
-            alert('ثبت شد!');
-            location.reload();
+            alert('آگهی شما با موفقیت ثبت شد!');
+            document.getElementById('loan-form').reset();
+            fetchLoans();
         }
     </script>
 </body>
