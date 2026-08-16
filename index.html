@@ -135,10 +135,10 @@
     <!-- کدهای جاوااسکریپت -->
     <script>
         function formatNumber(num) {
+            if (!num) return '۰';
             return new Intl.NumberFormat('en-US').format(num);
         }
 
-        // تابع جداکننده ارقام به هنگام تایپ در اینپوت
         function formatMoneyInput(input) {
             let value = input.value.replace(/,/g, '').replace(/\D/g, '');
             if (value) {
@@ -201,8 +201,8 @@
             let filteredLoans = loans.filter(loan => {
                 let matchesType = filterType === "" || loan.loanType === filterType;
                 let matchesSearch = filterSearch === "" || 
-                    loan.bankName.toLowerCase().includes(filterSearch) || 
-                    loan.city.toLowerCase().includes(filterSearch);
+                    (loan.bankName && loan.bankName.toLowerCase().includes(filterSearch)) || 
+                    (loan.city && loan.city.toLowerCase().includes(filterSearch));
                 return matchesType && matchesSearch;
             });
 
@@ -213,31 +213,37 @@
                 return;
             }
 
-            container.innerHTML = filteredLoans.map(loan => `
-                <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-sm hover:shadow-md transition flex flex-col justify-between">
-                    <div>
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2.5 py-1 rounded-lg">${loan.loanType}</span>
-                            <span class="text-[11px] text-slate-500 font-medium">📍 ${loan.city}</span>
-                        </div>
-                        <h3 class="font-black text-slate-800 text-sm mb-2">${loan.bankName}</h3>
-                        <div class="space-y-1 text-xs text-slate-600 mb-3">
-                            <div class="flex justify-between"><span>مبلغ وام:</span> <span class="font-bold text-slate-800">${formatNumber(loan.amount)} تومان</span></div>
-                            <div class="flex justify-between"><span>اقساط باقی‌مانده:</span> <span class="font-bold text-slate-800">${loan.installments} قسط</span></div>
-                        </div>
-                        <p class="text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-100">${loan.description || 'بدون توضیحات تکمیلی'}</p>
-                    </div>
-                    <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center">
+            container.innerHTML = filteredLoans.map(loan => {
+                const sellerName = loan.seller ? loan.seller.name : 'فروشنده';
+                const sellerPhone = loan.seller ? loan.seller.phone : 'ثبت نشده';
+                const sellerCity = loan.seller ? loan.seller.city : (loan.city || 'ـ');
+
+                return `
+                    <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-sm hover:shadow-md transition flex flex-col justify-between">
                         <div>
-                            <span class="text-[10px] text-slate-400 block font-medium">قیمت واگذاری</span>
-                            <span class="text-xs font-black text-emerald-600">${formatNumber(loan.price)} تومان</span>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2.5 py-1 rounded-lg">${loan.loanType || 'وام'}</span>
+                                <span class="text-[11px] text-slate-500 font-medium">📍 ${loan.city || 'ـ'}</span>
+                            </div>
+                            <h3 class="font-black text-slate-800 text-sm mb-2">${loan.bankName || 'بانک'}</h3>
+                            <div class="space-y-1 text-xs text-slate-600 mb-3">
+                                <div class="flex justify-between"><span>مبلغ وام:</span> <span class="font-bold text-slate-800">${formatNumber(loan.amount)} تومان</span></div>
+                                <div class="flex justify-between"><span>اقساط باقی‌مانده:</span> <span class="font-bold text-slate-800">${loan.installments || 0} قسط</span></div>
+                            </div>
+                            <p class="text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-100">${loan.description || 'بدون توضیحات تکمیلی'}</p>
                         </div>
-                        <button onclick="alert('اطلاعات فروشنده:\\nنام: ${loan.seller.name}\\nتلفن: ${loan.seller.phone}\\nشهر: ${loan.seller.city}')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-bold px-3 py-2 rounded-xl transition">
-                            اطلاعات تماس
-                        </button>
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center">
+                            <div>
+                                <span class="text-[10px] text-slate-400 block font-medium">قیمت واگذاری</span>
+                                <span class="text-xs font-black text-emerald-600">${formatNumber(loan.price)} تومان</span>
+                            </div>
+                            <button onclick="alert('اطلاعات فروشنده:\\nنام: ${sellerName}\\nتلفن: ${sellerPhone}\\nشهر: ${sellerCity}')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-bold px-3 py-2 rounded-xl transition">
+                                اطلاعات تماس
+                            </button>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function submitLoan(event) {
@@ -249,7 +255,6 @@
                 return;
             }
 
-            // پاک کردن کاماها از مقادیر قبل از ذخیره‌سازی
             const rawAmount = document.getElementById('amount').value.replace(/,/g, '');
             const rawPrice = document.getElementById('price').value.replace(/,/g, '');
 
