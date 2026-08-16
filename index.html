@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سامانه خرید و فروش امتیاز وام</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans">
+    <header class="bg-blue-900 text-white py-4 shadow-md">
+        <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold">بازار وام ایران</h1>
+            <div id="auth-section">
+                <button onclick="loginUser()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm transition">ورود / ثبت‌نام با شماره موبایل</button>
+            </div>
+        </div>
+    </header>
+    <main class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 h-fit">
+            <h2 class="text-lg font-bold text-gray-800 mb-4">ثبت آگهی واگذاری وام</h2>
+            <form id="loan-form" onsubmit="submitLoan(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">بانک عامل</label>
+                    <input type="text" id="bankName" required placeholder="مثلاً بانک رسالت" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">مبلغ کل وام (تومان)</label>
+                    <input type="number" id="amount" required placeholder="مثلاً 100000000" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">قیمت پیشنهادی واگذاری (تومان)</label>
+                    <input type="number" id="price" required placeholder="مثلاً 15000000" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition text-sm shadow-sm">
+                    ثبت آگهی
+                </button>
+            </form>
+        </div>
+        <div class="md:col-span-2">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">آخرین وام‌های تایید شده</h2>
+            <div id="loans-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <p class="text-gray-500 text-sm">در حال بارگذاری آگهی‌ها...</p>
+            </div>
+        </div>
+    </main>
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        async function loginUser() {
+            const phone = prompt("لطفاً شماره موبایل خود را وارد کنید:", "09123456789");
+            if (!phone) return;
+            try {
+                const res = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('token', data.token);
+                    alert('ورود با موفقیت انجام شد!');
+                    document.getElementById('auth-section').innerHTML = `<span class="text-green-300 text-sm font-medium">خوش آمدید (${phone})</span>`;
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) {
+                alert('خطا در ارتباط با سرور بک‌اند');
+            }
+        }
+        async function fetchLoans() {
+            try {
+                const res = await fetch(`${API_URL}/loans`);
+                const loans = await res.json();
+                const container = document.getElementById('loans-list');
+                if (loans.length === 0) {
+                    container.innerHTML = `<p class="text-gray-500 text-sm">هیچ آگهی تایید شده‌ای موجود نیست.</p>`;
+                    return;
+                }
+                container.innerHTML = loans.map(loan => `
+                    <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">${loan.bankName}</span>
+                        <h3 class="text-base font-bold text-gray-800 mt-2">مبلغ وام: ${loan.amount.toLocaleString()} تومان</h3>
+                        <p class="text-xs text-gray-500 mt-1">فروشنده: ${loan.user.phone}</p>
+                        <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center">
+                            <div>
+                                <span class="text-xs text-gray-400 block">قیمت واگذاری</span>
+                                <span class="text-sm font-bold text-green-600">${loan.price.toLocaleString()} تومان</span>
+                            </div>
+                            <button onclick="alert('برای ارتباط با فروشنده ابتدا باید وارد حساب کاربری خود شوید.')" class="bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-medium px-3 py-1.5 rounded-lg transition">
+                                اطلاعات تماس
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                document.getElementById('loans-list').innerHTML = `<p class="text-red-500 text-sm">خطا در بارگذاری اطلاعات از سرور.</p>`;
+            }
+        }
+        async function submitLoan(event) {
+            event.preventDefault();
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('لطفاً ابتدا از طریق دکمه بالای صفحه وارد شوید!');
+                return;
+            }
+            const bankName = document.getElementById('bankName').value;
+            const amount = document.getElementById('amount').value;
+            const price = document.getElementById('price').value;
+            try {
+                const res = await fetch(`${API_URL}/loans`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ bankName, amount, price })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message);
+                    document.getElementById('loan-form').reset();
+                    fetchLoans();
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) {
+                alert('خطا در ثبت آگهی');
+            }
+        }
+        fetchLoans();
+    </script>
+</body>
+</html>
